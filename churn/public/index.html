@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guru Intelligence | Customer Churn Dashboard</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for High-Fidelity Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-square-poll-vertical brand-icon"></i>
+                <div class="brand-text">
+                    <h1>Guru</h1>
+                    <span>Guru Intelligence</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-line"></i> Churn Dashboard
+                </button>
+                <button class="nav-item" data-tab="predictor">
+                    <i class="fa-solid fa-user-check"></i> Single Predictor
+                </button>
+                <button class="nav-item" data-tab="sandbox">
+                    <i class="fa-solid fa-flask"></i> Risk Sandbox
+                </button>
+                <button class="nav-item" data-tab="batch">
+                    <i class="fa-solid fa-file-csv"></i> Batch Prediction
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="model-badge">
+                    <div class="badge-header">
+                        <i class="fa-solid fa-brain"></i>
+                        <span>Model Active</span>
+                    </div>
+                    <div class="badge-body">
+                        <p>Logistic Regression</p>
+                        <span id="model-accuracy-text">Accuracy: --%</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-title">
+                    <h2 id="current-tab-title">Churn Dashboard</h2>
+                    <p id="current-tab-desc">High-level customer health overview and analytics stats.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="date-badge">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span id="current-date">June 11, 2026</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD OVERVIEW -->
+            <section id="tab-dashboard" class="tab-content active">
+                <!-- KPI Row -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon-wrapper kpi-blue">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Total Scored Customers</span>
+                            <h3 id="stat-total-customers" class="kpi-value">--</h3>
+                            <span class="kpi-subtext">Active database records</span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon-wrapper kpi-red">
+                            <i class="fa-solid fa-user-slash"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Overall Churn Rate</span>
+                            <h3 id="stat-churn-rate" class="kpi-value">--%</h3>
+                            <span class="kpi-subtext">Historical baseline</span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon-wrapper kpi-green">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Average Annual Spend</span>
+                            <h3 id="stat-avg-spend" class="kpi-value">₹--</h3>
+                            <span class="kpi-subtext">Per active customer</span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon-wrapper kpi-purple">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Avg Support Calls</span>
+                            <h3 id="stat-avg-calls" class="kpi-value">--</h3>
+                            <span class="kpi-subtext">Per customer / month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <!-- Contract & Churn Chart -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header">
+                            <h4>Contract Length vs Churn Risk</h4>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-contract"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Support Calls & Churn Chart -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header">
+                            <h4>Support Calls vs Churn Probability</h4>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-support"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Subscription Plan distribution & Churn -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header">
+                            <h4>Plan Type Churn Baseline</h4>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-subscription"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Payment Delays Churn -->
+                    <div class="chart-card glass-panel">
+                        <div class="chart-header">
+                            <h4>Payment Delay vs Churn Rate</h4>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-delay"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: SINGLE PREDICTOR -->
+            <section id="tab-predictor" class="tab-content">
+                <div class="predictor-layout">
+                    <!-- Inputs Form -->
+                    <div class="form-card glass-panel">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-clipboard-list"></i> Customer Characteristics</h3>
+                            <p>Fill out the customer metrics to generate the churn probability score.</p>
+                        </div>
+                        <form id="single-predict-form">
+                            <!-- Group 1: Demographics -->
+                            <div class="form-group-section">
+                                <h4><i class="fa-solid fa-user"></i> Demographics</h4>
+                                <div class="form-grid-2">
+                                    <div class="form-field">
+                                        <label for="age">Age</label>
+                                        <input type="number" id="age" name="Age" min="18" max="100" value="35" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="gender">Gender</label>
+                                        <select id="gender" name="Gender" required>
+                                            <option value="Female">Female</option>
+                                            <option value="Male">Male</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Group 2: Service Usage -->
+                            <div class="form-group-section">
+                                <h4><i class="fa-solid fa-chart-simple"></i> Usage & Engagement</h4>
+                                <div class="form-grid-3">
+                                    <div class="form-field">
+                                        <label for="tenure">Tenure (Months)</label>
+                                        <input type="number" id="tenure" name="Tenure" min="1" max="120" value="24" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="usage-frequency">Usage Freq (actions/mo)</label>
+                                        <input type="number" id="usage-frequency" name="Usage Frequency" min="0" max="100" value="15" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="last-interaction">Last Interaction (days ago)</label>
+                                        <input type="number" id="last-interaction" name="Last Interaction" min="0" max="30" value="10" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Group 3: Financial & Support -->
+                            <div class="form-group-section">
+                                <h4><i class="fa-solid fa-headset"></i> Billing & Friction</h4>
+                                <div class="form-grid-3">
+                                    <div class="form-field">
+                                        <label for="support-calls">Support Calls</label>
+                                        <input type="number" id="support-calls" name="Support Calls" min="0" max="20" value="2" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="payment-delay">Payment Delay (days)</label>
+                                        <input type="number" id="payment-delay" name="Payment Delay" min="0" max="30" value="3" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="total-spend">Total Spend (₹)</label>
+                                        <input type="number" id="total-spend" name="Total Spend" min="1" max="10000" value="600" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Group 4: Contract Settings -->
+                            <div class="form-group-section">
+                                <h4><i class="fa-solid fa-file-signature"></i> Subscription Settings</h4>
+                                <div class="form-grid-2">
+                                    <div class="form-field">
+                                        <label for="subscription-type">Subscription Type</label>
+                                        <select id="subscription-type" name="Subscription Type" required>
+                                            <option value="Basic">Basic</option>
+                                            <option value="Standard" selected>Standard</option>
+                                            <option value="Premium">Premium</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="contract-length">Contract Length</label>
+                                        <select id="contract-length" name="Contract Length" required>
+                                            <option value="Monthly" selected>Monthly</option>
+                                            <option value="Quarterly">Quarterly</option>
+                                            <option value="Annual">Annual</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-predict glow-btn">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Calculate Churn Risk
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Predictions Panel -->
+                    <div class="results-card glass-panel text-center">
+                        <div class="card-header">
+                            <h3>Churn Risk Report</h3>
+                            <p>Real-time analytics score based on ML parameters</p>
+                        </div>
+                        
+                        <div class="dial-container">
+                            <svg class="progress-ring" width="200" height="200">
+                                <circle class="progress-ring-bg" stroke="#1f2937" stroke-width="12" fill="transparent" r="85" cx="100" cy="100" />
+                                <circle id="score-ring" class="progress-ring-circle" stroke="var(--risk-green)" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="534" fill="transparent" r="85" cx="100" cy="100" />
+                            </svg>
+                            <div class="dial-text">
+                                <span id="score-percent" class="score-val">0%</span>
+                                <span id="score-label" class="score-lbl">SAFE</span>
+                            </div>
+                        </div>
+
+                        <div id="risk-alert-box" class="alert-box alert-safe">
+                            <h4 id="alert-title">Low Retention Risk</h4>
+                            <p id="alert-desc">This customer displays metrics typical of highly loyal accounts. No immediate actions required.</p>
+                        </div>
+
+                        <!-- Recommendations list -->
+                        <div class="recommendations-box">
+                            <h4><i class="fa-solid fa-lightbulb"></i> Recommended Actions</h4>
+                            <ul id="recommendations-list" class="recs-list">
+                                <li>No actions needed.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: RISK SANDBOX -->
+            <section id="tab-sandbox" class="tab-content">
+                <div class="sandbox-intro-card glass-panel">
+                    <h3>Interactive Risk Sandbox</h3>
+                    <p>Slide the features to see how the churn probability scales in real time. Tweak parameters to construct risk-mitigation strategies (e.g. converting a customer from Monthly to Annual, or dropping support calls by upgrading service).</p>
+                </div>
+                
+                <div class="sandbox-layout">
+                    <!-- Sliders Workspace -->
+                    <div class="sliders-card glass-panel">
+                        <div class="sandbox-sliders-grid">
+                            
+                            <!-- Support Calls -->
+                            <div class="slider-field">
+                                <div class="slider-header">
+                                    <label for="sb-support"><i class="fa-solid fa-headset icon-dim"></i> Support Calls</label>
+                                    <span id="sb-support-val" class="slider-badge">2 calls</span>
+                                </div>
+                                <input type="range" id="sb-support" min="0" max="15" value="2" class="range-slider">
+                                <span class="slider-hint">Highly critical churn driver</span>
+                            </div>
+
+                            <!-- Payment Delay -->
+                            <div class="slider-field">
+                                <div class="slider-header">
+                                    <label for="sb-delay"><i class="fa-solid fa-clock icon-dim"></i> Payment Delay (Days)</label>
+                                    <span id="sb-delay-val" class="slider-badge">3 days</span>
+                                </div>
+                                <input type="range" id="sb-delay" min="0" max="30" value="3" class="range-slider">
+                                <span class="slider-hint">Indicates billing friction</span>
+                            </div>
+
+                            <!-- Tenure -->
+                            <div class="slider-field">
+                                <div class="slider-header">
+                                    <label for="sb-tenure"><i class="fa-solid fa-calendar-days icon-dim"></i> Tenure (Months)</label>
+                                    <span id="sb-tenure-val" class="slider-badge">24 months</span>
+                                </div>
+                                <input type="range" id="sb-tenure" min="1" max="100" value="24" class="range-slider">
+                                <span class="slider-hint">Longer tenure decreases churn risk</span>
+                            </div>
+
+                            <!-- Total Spend -->
+                            <div class="slider-field">
+                                <div class="slider-header">
+                                    <label for="sb-spend"><i class="fa-solid fa-indian-rupee-sign icon-dim"></i> Total Spend (₹)</label>
+                                    <span id="sb-spend-val" class="slider-badge">₹600</span>
+                                </div>
+                                <input type="range" id="sb-spend" min="10" max="2000" value="600" class="range-slider">
+                                <span class="slider-hint">Value invested in platform</span>
+                            </div>
+
+                            <!-- Usage Frequency -->
+                            <div class="slider-field">
+                                <div class="slider-header">
+                                    <label for="sb-usage"><i class="fa-solid fa-arrow-pointer icon-dim"></i> Usage Frequency</label>
+                                    <span id="sb-usage-val" class="slider-badge">15 logins</span>
+                                </div>
+                                <input type="range" id="sb-usage" min="0" max="60" value="15" class="range-slider">
+                                <span class="slider-hint">Activity per month</span>
+                            </div>
+
+                            <!-- Age -->
+                            <div class="slider-field">
+                                <div class="slider-header">
+                                    <label for="sb-age"><i class="fa-solid fa-child icon-dim"></i> Age</label>
+                                    <span id="sb-age-val" class="slider-badge">35 yrs</span>
+                                </div>
+                                <input type="range" id="sb-age" min="18" max="80" value="35" class="range-slider">
+                                <span class="slider-hint">Demographic cohort parameter</span>
+                            </div>
+
+                            <!-- Dropdowns -->
+                            <div class="slider-dropdowns-row">
+                                <div class="dropdown-field">
+                                    <label for="sb-contract"><i class="fa-solid fa-file-contract icon-dim"></i> Contract Length</label>
+                                    <select id="sb-contract" class="sandbox-select">
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Quarterly">Quarterly</option>
+                                        <option value="Annual">Annual</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="dropdown-field">
+                                    <label for="sb-subscription"><i class="fa-solid fa-layer-group icon-dim"></i> Subscription Plan</label>
+                                    <select id="sb-subscription" class="sandbox-select">
+                                        <option value="Basic">Basic</option>
+                                        <option value="Standard" selected>Standard</option>
+                                        <option value="Premium">Premium</option>
+                                    </select>
+                                </div>
+
+                                <div class="dropdown-field">
+                                    <label for="sb-gender"><i class="fa-solid fa-venus-mars icon-dim"></i> Gender</label>
+                                    <select id="sb-gender" class="sandbox-select">
+                                        <option value="Female">Female</option>
+                                        <option value="Male">Male</option>
+                                    </select>
+                                </div>
+
+                                <div class="dropdown-field">
+                                    <label for="sb-interaction"><i class="fa-solid fa-user-clock icon-dim"></i> Last Interaction</label>
+                                    <select id="sb-interaction" class="sandbox-select">
+                                        <option value="2">2 days ago</option>
+                                        <option value="10" selected>10 days ago</option>
+                                        <option value="25">25 days ago</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Sandbox Results -->
+                    <div class="sandbox-results-card glass-panel text-center">
+                        <div class="sandbox-header">
+                            <h4>Simulation Risk Result</h4>
+                            <span class="sandbox-badge">Realtime Calculator</span>
+                        </div>
+
+                        <div class="score-display-box">
+                            <h2 id="sb-probability-text">14.2%</h2>
+                            <p>Churn Probability</p>
+                        </div>
+
+                        <!-- Progress Bar representation -->
+                        <div class="meter-bar-container">
+                            <div class="meter-labels">
+                                <span>Low Risk</span>
+                                <span>Medium</span>
+                                <span>High Risk</span>
+                            </div>
+                            <div class="meter-bar-bg">
+                                <div id="sb-meter-fill" class="meter-bar-fill" style="width: 14.2%; background-color: var(--risk-green)"></div>
+                            </div>
+                        </div>
+
+                        <div id="sb-risk-badge" class="risk-pill pill-safe">
+                            LOW RISK
+                        </div>
+
+                        <div class="sandbox-impact-list">
+                            <h5>Simulated Retention Strategy</h5>
+                            <div id="sandbox-recs" class="sandbox-recs">
+                                <div class="sandbox-rec-item">
+                                    <i class="fa-solid fa-circle-check text-green"></i>
+                                    <span>Support Calls are low (2). Dissatisfaction triggers are inactive.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: BATCH PREDICTION -->
+            <section id="tab-batch" class="tab-content">
+                <div class="batch-layout">
+                    <!-- Drag and Drop Zone -->
+                    <div class="drop-zone-card glass-panel text-center">
+                        <div class="drop-zone" id="csv-drop-zone">
+                            <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+                            <h3>Upload Customer CSV File</h3>
+                            <p>Drag & drop your CSV file here, or click to browse</p>
+                            <span class="drop-zone-note">Ensure file column headers match the template.</span>
+                            <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                        </div>
+                        <div class="drop-zone-actions">
+                            <a href="/customer_churn_template.csv" class="btn-template-download">
+                                <i class="fa-solid fa-download"></i> Download CSV Template
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Batch Progress/Status -->
+                    <div id="batch-status-panel" class="batch-status-panel glass-panel" style="display: none;">
+                        <div class="status-header">
+                            <div class="status-left">
+                                <i class="fa-solid fa-circle-notch fa-spin status-spinner" id="batch-spinner"></i>
+                                <h4 id="batch-status-title">Processing file...</h4>
+                            </div>
+                            <span id="batch-file-name" class="file-name-badge">customers.csv</span>
+                        </div>
+                        <div class="status-metrics" id="batch-metrics-row" style="display: none;">
+                            <div class="metric-block">
+                                <span class="metric-lbl">Total Parsed</span>
+                                <h5 id="batch-parsed-count">0</h5>
+                            </div>
+                            <div class="metric-block">
+                                <span class="metric-lbl">High Risk (>=70%)</span>
+                                <h5 id="batch-high-risk-count" class="text-red">0</h5>
+                            </div>
+                            <div class="metric-block">
+                                <span class="metric-lbl">Medium Risk (40%-69%)</span>
+                                <h5 id="batch-med-risk-count" class="text-yellow">0</h5>
+                            </div>
+                            <div class="metric-block">
+                                <span class="metric-lbl">Low Risk (<40%)</span>
+                                <h5 id="batch-low-risk-count" class="text-green">0</h5>
+                            </div>
+                        </div>
+                        <div class="status-download-btn-container" id="batch-download-container" style="display: none;">
+                            <button id="btn-download-results" class="btn-download-action">
+                                <i class="fa-solid fa-file-export"></i> Export Predictions CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results Table -->
+                    <div class="table-card glass-panel" id="batch-table-card" style="display: none;">
+                        <div class="table-header">
+                            <h3>Scored Customers Preview</h3>
+                            <span class="table-meta-text">Showing up to 100 rows</span>
+                        </div>
+                        <div class="table-scroll-container">
+                            <table class="results-table" id="batch-results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Row</th>
+                                        <th>Customer ID</th>
+                                        <th>Age</th>
+                                        <th>Gender</th>
+                                        <th>Tenure</th>
+                                        <th>Subscription</th>
+                                        <th>Contract</th>
+                                        <th>Spend</th>
+                                        <th>Support Calls</th>
+                                        <th>Churn Risk</th>
+                                        <th>Risk Category</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="batch-table-body">
+                                    <!-- Dynamic rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+{
+    "features": [
+        "Age",
+        "Gender",
+        "Tenure",
+        "Usage Frequency",
+        "Support Calls",
+        "Payment Delay",
+        "Subscription Type",
+        "Contract Length",
+        "Total Spend",
+        "Last Interaction"
+    ],
+    "coefficients": [
+        0.01905640049075679,
+        -1.1433152293252087,
+        0.034741632617006406,
+        -0.058531434645927784,
+        0.32603483641886727,
+        0.20963729379713678,
+        -0.03846249526570501,
+        -0.08055641400073864,
+        -0.0009737720391202987,
+        -0.0004513432220737402
+    ],
+    "intercept": -5.519738866724064,
+    "categorical_mappings": {
+        "Gender": {
+            "Female": 0,
+            "Male": 1
+        },
+        "Subscription Type": {
+            "Basic": 0,
+            "Premium": 1,
+            "Standard": 2
+        },
+        "Contract Length": {
+            "Annual": 0,
+            "Monthly": 1,
+            "Quarterly": 2
+        }
+    },
+    "summary_stats": {
+        "total_customers": 64374,
+        "overall_churn_rate": 0.47368502811694163,
+        "average_age": 41.97098207350794,
+        "average_tenure": 31.994827104110357,
+        "average_spend": 541.0233790039457,
+        "average_support_calls": 5.400689719451953,
+        "average_payment_delay": 17.13395159536459,
+        "gender_stats": {
+            "counts": {
+                "0": 34353,
+                "1": 30021
+            },
+            "churn_rates": {
+                "0": 0.5504904957354525,
+                "1": 0.3857966090403384
+            }
+        },
+        "contract_stats": {
+            "counts": {
+                "1": 22130,
+                "0": 21410,
+                "2": 20834
+            },
+            "churn_rates": {
+                "0": 0.46216721158337226,
+                "1": 0.516086760054225,
+                "2": 0.44048190457905345
+            }
+        },
+        "subscription_stats": {
+            "counts": {
+                "2": 21502,
+                "0": 21451,
+                "1": 21421
+            },
+            "churn_rates": {
+                "0": 0.4827746958183768,
+                "1": 0.4649642873815415,
+                "2": 0.4733048088549902
+            }
+        },
+        "support_stats": {
+            "counts": {
+                "6+ calls": 33138,
+                "3-5 calls": 16528,
+                "0-2 calls": 14708
+            },
+            "churn_rates": {
+                "0-2 calls": 0.23422627141691596,
+                "3-5 calls": 0.413661665053243,
+                "6+ calls": 0.6099040376606917
+            }
+        },
+        "delay_stats": {
+            "counts": {
+                "16+ days": 39204,
+                "6-15 days": 15807,
+                "0-5 days": 9363
+            },
+            "churn_rates": {
+                "0-5 days": 0.1018904197372637,
+                "6-15 days": 0.10052508382362245,
+                "16+ days": 0.7129374553616978
+            }
+        }
+    },
+    "train_accuracy": 0.8240548360162333,
+    "test_accuracy": 0.8306796116504854
+}
